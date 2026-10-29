@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:17
+    container_name: coworkhub-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: coworkhub
+      POSTGRES_USER: coworkhub_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - coworkhub_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coworkhub_user -d coworkhub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  coworkhub_data:
