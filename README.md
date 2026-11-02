@@ -74,7 +74,6 @@ git clone https://github.com/aishaSalmii/CoWorkHub.git
 cd CoWorkHub
 ```
 
-Use the shared development branch until the setup Pull Request is merged into `main`.
 
 ### Step 2 — Configure the environment
 
