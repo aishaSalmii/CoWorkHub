@@ -60,3 +60,23 @@ All team members are responsible for understanding the complete application.
 The initial Spring Boot project has been generated, compiled, and started successfully. The PostgreSQL development environment and Docker configuration have been prepared.
 
 JPA domain models, REST API functionality, Flutter integration, and final Docker deployment remain to be completed and tested.
+
+## 7. Domain Model — Resource Inheritance
+
+`BookableResource` is an abstract JPA entity with two subclasses: `MeetingRoom` and `Desk`.
+
+**Chosen strategy: `SINGLE_TABLE`** (table `bookable_resources`, discriminator column `resource_type` with values `MEETING_ROOM` / `DESK`).
+
+| Strategy | Why it was or was not chosen |
+|---|---|
+| **SINGLE_TABLE (chosen)** | The hierarchy is small (two subclasses with only one or two extra fields each). The most frequent queries — listing resources, filtering, and availability search — read rooms and desks together, which needs no joins. Bookings reference one resource table through a single foreign key. |
+| JOINED | Fully normalised, but every resource read would need a join between the base table and a subclass table, adding complexity without benefit for so few subclass fields. |
+| TABLE_PER_CLASS | Listing all resources would require a UNION of two tables, and a booking foreign key could not point to one resource table. |
+
+**Trade-off accepted:** subclass columns (`has_projector`, `has_video_conference`, `desk_type`) are nullable, because they are empty for the other resource type. For this reason they use wrapper types (`Boolean`) instead of primitives.
+
+**Other design choices**
+- `hourlyRate` uses `BigDecimal` to avoid rounding errors in prices.
+- Enums are stored with `@Enumerated(EnumType.STRING)` so the database contains readable values and reordering the enum cannot corrupt data.
+- A `Desk` always starts with capacity 1, because a desk accommodates one person.
+- Repositories: `BookableResourceRepository` (all resources, with derived queries for status, minimum capacity and location), `MeetingRoomRepository` and `DeskRepository` (filtering by resource type).
