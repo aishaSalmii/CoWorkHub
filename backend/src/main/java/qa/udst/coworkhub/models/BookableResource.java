@@ -66,11 +66,12 @@ public abstract class BookableResource {
     @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    private ResourceStatus status = ResourceStatus.ACTIVE;
+
     // One resource can have many bookings. "resource" is the field name in Booking.
     @OneToMany(mappedBy = "resource")
     @JsonIgnore
     private List<Booking> bookings = new ArrayList<>();
-    private ResourceStatus status = ResourceStatus.ACTIVE;
 
     /**
      * Returns "MEETING_ROOM" or "DESK".
