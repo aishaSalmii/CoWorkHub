@@ -1,7 +1,10 @@
 package qa.udst.coworkhub.models;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
@@ -10,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
@@ -62,6 +66,10 @@ public abstract class BookableResource {
     @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    // One resource can have many bookings. "resource" is the field name in Booking.
+    @OneToMany(mappedBy = "resource")
+    @JsonIgnore
+    private List<Booking> bookings = new ArrayList<>();
     private ResourceStatus status = ResourceStatus.ACTIVE;
 
     /**
