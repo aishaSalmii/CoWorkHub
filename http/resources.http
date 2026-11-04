@@ -1,0 +1,102 @@
+@base = http://localhost:8080/api/resources
+
+### 1. List all resources -> 200
+GET {{base}}
+
+### 2. Filter: only desks -> 200
+GET {{base}}?type=DESK
+
+### 3. Filter: at least 5 people -> 200
+GET {{base}}?minCapacity=5
+
+### 4. Filter: location + max price -> 200
+GET {{base}}?location=floor 2&maxPrice=50
+
+### 5. Invalid type -> 400
+GET {{base}}?type=SOFA
+
+### 6. One resource -> 200
+GET {{base}}/1
+
+### 7. Unknown resource -> 404
+GET {{base}}/999
+
+### 8. Create a meeting room -> 201
+POST {{base}}/rooms
+Content-Type: application/json
+
+{
+  "name": "Innovation Lab",
+  "location": "Floor 3",
+  "capacity": 12,
+  "hourlyRate": 95.00,
+  "hasProjector": true,
+  "hasVideoConference": false
+}
+
+### 9. Create a desk (capacity 5 is ignored -> always 1) -> 201
+POST {{base}}/desks
+Content-Type: application/json
+
+{
+  "name": "Dedicated Desk C1",
+  "location": "Floor 3",
+  "capacity": 5,
+  "hourlyRate": 15.00,
+  "deskType": "DEDICATED_DESK"
+}
+
+### 10. Invalid room -> 400 (lists all problems)
+POST {{base}}/rooms
+Content-Type: application/json
+
+{
+  "name": "",
+  "location": "Floor 3",
+  "capacity": 0,
+  "hourlyRate": -5
+}
+
+### 11. Update room 2 -> OUT_OF_SERVICE -> 200
+PUT {{base}}/2/room
+Content-Type: application/json
+
+{
+  "name": "Focus Room",
+  "location": "Floor 1",
+  "capacity": 6,
+  "hourlyRate": 45.00,
+  "status": "OUT_OF_SERVICE",
+  "hasProjector": true,
+  "hasVideoConference": true
+}
+
+### 12. Update a desk using the ROOM endpoint -> 404 (3 is a desk)
+PUT {{base}}/3/room
+Content-Type: application/json
+
+{
+  "name": "x",
+  "location": "y",
+  "capacity": 2,
+  "hourlyRate": 10
+}
+
+### 13. Update desk 3 -> 200
+PUT {{base}}/3/desk
+Content-Type: application/json
+
+{
+  "name": "Hot Desk A1",
+  "location": "Floor 1",
+  "hourlyRate": 11.00,
+  "status": "ACTIVE",
+  "deskType": "STANDING_DESK"
+}
+
+### 14. Delete the desk created in request 9 (no bookings) -> 204
+### Check the "id" in the answer of request 9, and change 6 below if it is different
+DELETE {{base}}/6
+
+### 15. Delete it again -> 404
+DELETE {{base}}/6
