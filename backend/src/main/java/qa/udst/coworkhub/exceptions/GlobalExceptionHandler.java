@@ -8,6 +8,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * Catches exceptions thrown anywhere in the controllers or services
@@ -51,6 +52,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUnreadableBody(HttpMessageNotReadableException ex) {
         return buildResponse(HttpStatus.BAD_REQUEST,
                 "The request body is missing or has an invalid format.");
+    }
+
+    // 400 - a URL value has the wrong type (for example /api/resources/abc or start=tomorrow)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                "Invalid value '" + ex.getValue() + "' for parameter '" + ex.getName() + "'.");
     }
 
     // Helper: builds the ResponseEntity with the status code and the JSON body
