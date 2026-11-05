@@ -1,0 +1,47 @@
+
+@base = http://localhost:8080/api/members
+
+### 1. List all members -> 200
+GET {{base}}
+
+### 2. Get one member -> 200
+GET {{base}}/1
+
+### 3. Unknown member -> 404
+GET {{base}}/999
+
+### 4. Create a member -> 201
+POST {{base}}
+Content-Type: application/json
+
+{
+  "fullName": "Layla Hassan",
+  "email": "layla@example.com",
+  "phoneNumber": "55520003"
+}
+
+### 5. Same email again -> 409
+POST {{base}}
+Content-Type: application/json
+
+{
+  "fullName": "Another Person",
+  "email": "layla@example.com",
+  "phoneNumber": "55520004"
+}
+
+### 6. Invalid member -> 400
+POST {{base}}
+Content-Type: application/json
+
+{
+  "fullName": "",
+  "email": "not-an-email",
+  "phoneNumber": ""
+}
+
+### 7. Bookings of member 1 -> 200
+GET {{base}}/1/bookings
+
+### 8. Bookings of unknown member -> 404
+GET {{base}}/999/bookings
