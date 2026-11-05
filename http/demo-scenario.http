@@ -1,0 +1,147 @@
+@base=http://localhost:8080/api
+
+### 1. create a member ->201
+# @name member
+POST {{base}}/members 
+Content-Type: application/json
+
+{
+    "fullName":"Demo Member",
+    "email":"demo{{$timestamp}}@example.com",
+    "phoneNumber":"55500000"
+}
+
+### 2. craete a meeting room ->201
+# @name room
+POST {{base}}/resources/rooms
+Content-Type: application/json
+
+{
+    "name":"Demo Room",
+    "location":"Floor 4",
+    "capacity":6,
+    "hourlyRate":50.00,
+    "hasProjector":true,
+    "hasVideoConference":true
+    }
+
+### 3. available meetinf rooms ->200
+GET {{base}}/resources/available?start=2026-12-01T10:00:00&end=2026-12-01T12:00:00&type=MEETING_ROOM
+
+### 4. book demo room ->201
+# @name booking 
+Post {{base}}/bookings
+Content-Type: application/json
+
+{
+    "memberId":{{member.response.body.$.id}},
+    "resourceId":{{room.response.body.$.id}},
+    "startDateTime":"2026-12-01T10:00:00",
+    "endDateTime":"2026-12-01T12:00:00",
+    "attendees":4
+}
+
+### 5. overlapping booking ->409
+POST {{base}}/bookings
+Content-Type: application/json
+
+{
+     "memberId":{{member.response.body.$.id}},
+    "resourceId":{{room.response.body.$.id}},
+    "startDateTime":"2026-12-01T11:00:00",
+    "endDateTime":"2026-12-01T13:00:00",
+    "attendees":2
+}
+
+### 6. adjacent booking ->201
+POST {{base}}/bookings
+Content-Type: application/json
+
+{
+     "memberId":{{member.response.body.$.id}},
+    "resourceId":{{room.response.body.$.id}},
+    "startDateTime":"2026-12-01T12:00:00",
+    "endDateTime":"2026-12-01T13:00:00",
+    "attendees":2
+}
+
+### 7. available rooms again ->200
+GET {{base}}/resources/available?start=2026-12-01T10:00:00&end=2026-12-01T12:00:00&type=MEETING_ROOM
+
+### 8. too many attendees ->400
+POST {{base}}/bookings
+Content-Type: application/json
+
+{
+     "memberId":{{member.response.body.$.id}},
+    "resourceId":{{room.response.body.$.id}},
+    "startDateTime":"2026-12-01T14:00:00",
+    "endDateTime":"2026-12-01T15:00:00",
+    "attendees":8
+}
+
+### 9. member booking ->200
+GET {{base}}/members/{{member.response.body.$.id}}/bookings
+
+### 10. delete room with booking ->409
+DELETE {{base}}/resources/{{room.response.body.$.id}}
+
+### 11.cancel booking ->200
+PUT {{base}}/bookings/{{booking.response.body.$.id}}/cancel
+
+### 12. available rooms after cancellation ->200
+GET {{base}}/resources/available?start=2026-12-01T10:00:00&end=2026-12-01T12:00:00&type=MEETING_ROOM
+
+### 13. book same slot again ->201
+POST {{base}}/bookings
+Content-Type: application/json
+
+{
+     "memberId":{{member.response.body.$.id}},
+    "resourceId":{{room.response.body.$.id}},
+    "startDateTime":"2026-12-01T11:00:00",
+    "endDateTime":"2026-12-01T12:00:00",
+    "attendees":3
+}
+
+### 14. set room OUT_OF_SERVICE ->200
+PUT {{base}}/resources/{{room.response.body.$.id}}/room
+Content-Type: application/json
+
+{
+    "name":"Demo Room",
+    "location":"Floor 4",
+    "capacity":6,
+    "hourlyRate":50.00,
+    "status":"OUT_OF_SERVICE",
+    "hasProjector":true,
+    "hasVideoConference":true
+}
+
+
+### 15. book out_of_service room ->400
+POST {{base}}/bookings
+Content-Type: application/json
+
+{
+      "memberId":{{member.response.body.$.id}},
+    "resourceId":{{room.response.body.$.id}},
+    "startDateTime":"2026-12-01T10:00:00",
+    "endDateTime":"2026-12-01T11:00:00",
+    "attendees":2
+}
+
+### 16. duplicate member email ->409
+POST {{base}}/members
+Content-Type: application/json
+
+{
+    "fullName":"Copy",
+    "email":"{{member.response.body.$.email}}",
+    "phoneNumber":"5550001"
+}
+### 17. unknown booking ->409
+GET {{base}}/bookings/999999
+
+### 18. invaild resourse id ->400
+GET {{base}}/resources/abc
