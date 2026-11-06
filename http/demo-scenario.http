@@ -11,7 +11,7 @@ Content-Type: application/json
     "phoneNumber":"55500000"
 }
 
-### 2. craete a meeting room ->201
+### 2. create a meeting room ->201
 # @name room
 POST {{base}}/resources/rooms
 Content-Type: application/json
@@ -25,12 +25,12 @@ Content-Type: application/json
     "hasVideoConference":true
     }
 
-### 3. available meetinf rooms ->200
+### 3. available meeting rooms ->200
 GET {{base}}/resources/available?start=2026-12-01T10:00:00&end=2026-12-01T12:00:00&type=MEETING_ROOM
 
 ### 4. book demo room ->201
 # @name booking 
-Post {{base}}/bookings
+POST {{base}}/bookings
 Content-Type: application/json
 
 {
@@ -140,8 +140,8 @@ Content-Type: application/json
     "email":"{{member.response.body.$.email}}",
     "phoneNumber":"5550001"
 }
-### 17. unknown booking ->409
+### 17. unknown booking ->404
 GET {{base}}/bookings/999999
 
-### 18. invaild resourse id ->400
+### 18. invalid resource id ->400
 GET {{base}}/resources/abc
