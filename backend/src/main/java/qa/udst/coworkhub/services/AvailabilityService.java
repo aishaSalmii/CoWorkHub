@@ -23,15 +23,15 @@ public class AvailabilityService{
     }
     public List<BookableResource> findAvailable(LocalDateTime start,LocalDateTime end, String type, Integer minCapacity ){
         if(start==null || end==null){
-            throw new BusinessRuleException("Both start and end date and time are requierd.");
+            throw new BusinessRuleException("Both start and end date and time are required.");
         }
         if(!start.isBefore(end)){
-            throw new BusinessRuleException("The start time must be before the end time");
+            throw new BusinessRuleException("The start time must be before the end time.");
         }
         if(type != null 
             && !type.equalsIgnoreCase("MEETING_ROOM")
             && !type.equalsIgnoreCase("DESK")){
-               throw new BusinessRuleException("Type must be MEETING_ROOM or DESK");
+               throw new BusinessRuleException("Type must be MEETING_ROOM or DESK.");
             }
             return resourceRepository.findByStatus(ResourceStatus.ACTIVE)
             .stream()
