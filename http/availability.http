@@ -24,7 +24,7 @@ GET {{base}}/resources/available?start=2026-12-15T11:00:00&end=2026-12-15T12:00:
 ### 5. Meeting room with capacity of at least 5
 GET {{base}}/resources/available?start=2026-12-15T13:00:00&end=2026-12-15T14:00:00&type=MEETING_ROOM&minCapacity=5
 
-### 6. Invalid time interval (expect400)
+### 6. Invalid time interval (expect 400)
 GET {{base}}/resources/available?start=2026-12-15T12:00:00&end=2026-12-15T10:00:00
 
 ### 7. Missing end time (expect 400)

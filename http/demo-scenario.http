@@ -29,7 +29,7 @@ Content-Type: application/json
 GET {{base}}/resources/available?start=2026-12-01T10:00:00&end=2026-12-01T12:00:00&type=MEETING_ROOM
 
 ### 4. book demo room ->201
-# @name booking 
+# @name booking
 POST {{base}}/bookings
 Content-Type: application/json
 
