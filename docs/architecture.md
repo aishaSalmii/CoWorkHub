@@ -79,4 +79,4 @@ JPA domain models, REST API functionality, Flutter integration, and final Docker
 - `hourlyRate` uses `BigDecimal` to avoid rounding errors in prices.
 - Enums are stored with `@Enumerated(EnumType.STRING)` so the database contains readable values and reordering the enum cannot corrupt data.
 - A `Desk` always starts with capacity 1, because a desk accommodates one person.
-- Repositories: `BookableResourceRepository` (all resources, with derived queries for status, minimum capacity and location), `MeetingRoomRepository` and `DeskRepository` (filtering by resource type).
+- Repositories: `BookableResourceRepository` (all resources, with the derived query `findByStatus` used by the availability search), `MeetingRoomRepository` and `DeskRepository` (used to create and update each resource type). Filtering by capacity, location and price is done in `ResourceService`.
