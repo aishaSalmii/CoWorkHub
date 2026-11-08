@@ -15,10 +15,4 @@ public interface BookableResourceRepository extends JpaRepository<BookableResour
 
     // Availability search: only ACTIVE resources can be booked.
     List<BookableResource> findByStatus(ResourceStatus status);
-
-    // Filter: resources that hold at least the given number of people.
-    List<BookableResource> findByCapacityGreaterThanEqual(Integer minCapacity);
-
-    // Filter: resources whose location contains a keyword, e.g. "floor 2".
-    List<BookableResource> findByLocationContainingIgnoreCase(String location);
 }
