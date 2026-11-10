@@ -74,13 +74,15 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
       _loadingMembers = true;
       _membersError = null;
     });
-    try {
+      try {
       final members = await _api.getMembers();
+      if (!mounted) return;
       setState(() => _members = members);
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() => _membersError = e.message);
     } finally {
-      setState(() => _loadingMembers = false);
+      if (mounted) setState(() => _loadingMembers = false);
     }
   }
 
@@ -100,16 +102,18 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     });
     try {
       final all = await _api.getResources(type: _typeFilter);
-      final available = await _api.getAvailableResources(
+            final available = await _api.getAvailableResources(
           start: _start, end: _end, type: _typeFilter);
+      if (!mounted) return;
       setState(() {
         _resources = all.where((r) => r.isActive).toList();
         _availableIds = available.map((r) => r.id!).toSet();
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() => _searchError = e.message);
     } finally {
-      setState(() => _searching = false);
+      if (mounted) setState(() => _searching = false);
     }
   }
 
