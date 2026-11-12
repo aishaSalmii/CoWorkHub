@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
+import 'package:coworkhub_frontend/models/member.dart';
 import 'package:coworkhub_frontend/services/api_service.dart';
 
 void main() {
@@ -68,5 +69,34 @@ void main() {
   test('formatDateTime uses the format the backend expects', () {
     expect(ApiService.formatDateTime(DateTime(2026, 12, 1, 9, 5)),
         '2026-12-01T09:05:00');
+  });
+
+  test('updateMember sends PUT /api/members/{id} with the member JSON',
+      () async {
+    final client = MockClient((request) async {
+      expect(request.method, 'PUT');
+      expect(request.url.toString(), 'http://localhost:8080/api/members/2');
+      expect(jsonDecode(request.body)['phoneNumber'], '55519999');
+      return http.Response(
+          jsonEncode({
+            'id': 2,
+            'fullName': 'Omar Khalid',
+            'email': 'omar.khalid@example.com',
+            'phoneNumber': '55519999'
+          }),
+          200);
+    });
+
+    final updated = await ApiService(client: client).updateMember(
+      2,
+      Member(
+        fullName: 'Omar Khalid',
+        email: 'omar.khalid@example.com',
+        phoneNumber: '55519999',
+      ),
+    );
+
+    expect(updated.id, 2);
+    expect(updated.phoneNumber, '55519999');
   });
 }

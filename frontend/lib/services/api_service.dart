@@ -116,6 +116,12 @@ class ApiService {
     return Member.fromJson(data);
   }
 
+  /// PUT /api/members/{id} (409 if another member already has the email)
+  Future<Member> updateMember(int id, Member member) async {
+    final data = await _send('PUT', '/members/$id', body: member.toJson());
+    return Member.fromJson(data);
+  }
+
   /// GET /api/members/{id}/bookings
   Future<List<Booking>> getMemberBookings(int memberId) async {
     final data = await _send('GET', '/members/$memberId/bookings') as List;

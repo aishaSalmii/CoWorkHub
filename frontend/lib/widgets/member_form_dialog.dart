@@ -2,17 +2,33 @@ import 'package:flutter/material.dart';
 
 import '../models/member.dart';
 
+/// Form to add a new member, or to edit [member] when it is given.
 class MemberFormDialog extends StatefulWidget {
-  const MemberFormDialog({super.key});
+  /// The member to edit. null = add a new member.
+  final Member? member;
+
+  const MemberFormDialog({super.key, this.member});
+
   @override
   State<MemberFormDialog> createState() => _MemberFormDialogState();
 }
 
 class _MemberFormDialogState extends State<MemberFormDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
+
+  // When editing, the boxes start with the member's current values.
+  late final _nameController = TextEditingController(
+    text: widget.member?.fullName ?? '',
+  );
+  late final _emailController = TextEditingController(
+    text: widget.member?.email ?? '',
+  );
+  late final _phoneController = TextEditingController(
+    text: widget.member?.phoneNumber ?? '',
+  );
+
+  bool get _isEditing => widget.member != null;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -28,6 +44,7 @@ class _MemberFormDialogState extends State<MemberFormDialog> {
     Navigator.pop(
       context,
       Member(
+        id: widget.member?.id,
         fullName: _nameController.text.trim(),
         email: _emailController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
@@ -38,7 +55,7 @@ class _MemberFormDialogState extends State<MemberFormDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add member'),
+      title: Text(_isEditing ? 'Edit member' : 'Add member'),
       content: Form(
         key: _formKey,
         child: SizedBox(
