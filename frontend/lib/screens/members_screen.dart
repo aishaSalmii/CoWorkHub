@@ -7,7 +7,7 @@ import '../widgets/error_view.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/member_form_dialog.dart';
 
-/// Lists members, creates members and shows a member's bookings.
+/// Lists members, creates and edits members and shows a member's bookings.
 class MembersScreen extends StatefulWidget {
   final ApiService? api;
   const MembersScreen({super.key, this.api});
@@ -58,6 +58,24 @@ class _MembersScreenState extends State<MembersScreen> {
       final created = await _api.createMember(member);
       if (!mounted) return;
       showMessage(context, 'Member ${created.fullName} added.');
+      await _loadMembers();
+    } catch (e) {
+      if (!mounted) return;
+      showMessage(context, e.toString(), isError: true);
+    }
+  }
+
+  Future<void> _editMember(Member member) async {
+    if (member.id == null) return;
+    final edited = await showDialog<Member>(
+      context: context,
+      builder: (context) => MemberFormDialog(member: member),
+    );
+    if (edited == null) return;
+    try {
+      final updated = await _api.updateMember(member.id!, edited);
+      if (!mounted) return;
+      showMessage(context, 'Member ${updated.fullName} updated.');
       await _loadMembers();
     } catch (e) {
       if (!mounted) return;
@@ -118,7 +136,17 @@ class _MembersScreenState extends State<MembersScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [Text(member.email), Text(member.phoneNumber)],
             ),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  tooltip: 'Edit member',
+                  icon: const Icon(Icons.edit),
+                  onPressed: () => _editMember(member),
+                ),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
             onTap: () => _showBookings(member),
           ),
         );

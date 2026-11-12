@@ -9,10 +9,12 @@ class FakeMembersApiService extends ApiService {
   List<Member> members;
   List<Booking> memberBookings;
   String? createMemberError;
+  String? updateMemberError;
   FakeMembersApiService({
     required this.members,
     this.memberBookings = const [],
     this.createMemberError,
+    this.updateMemberError,
   });
   @override
   Future<List<Member>> getMembers() async {
@@ -34,6 +36,22 @@ class FakeMembersApiService extends ApiService {
       created,
     ];
     return created;
+  }
+  @override
+  Future<Member> updateMember(int id, Member member) async {
+    if (updateMemberError != null) {
+      throw ApiException(updateMemberError!);
+    }
+    final updated = Member(
+      id: id,
+      fullName: member.fullName,
+      email: member.email,
+      phoneNumber: member.phoneNumber,
+    );
+    members = [
+      for (final m in members) m.id == id ? updated : m,
+    ];
+    return updated;
   }
   @override
   Future<List<Booking>> getMemberBookings(int memberId) async {
@@ -296,6 +314,53 @@ void main() {
         find.text('Resource: Meeting Room A'),
         findsOneWidget,
       );
+    },
+  );
+  testWidgets(
+    'Edit member opens a filled form, saves and refreshes the list',
+    (tester) async {
+      final api = FakeMembersApiService(members: [makeMember()]);
+      await tester.pumpWidget(
+        MaterialApp(home: Scaffold(body: MembersScreen(api: api))),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Edit member'));
+      await tester.pumpAndSettle();
+      expect(find.text('Edit member'), findsWidgets);
+      final fields = find.byType(TextFormField);
+      expect(
+        tester.widget<TextFormField>(fields.at(0)).controller!.text,
+        'Sara Ahmed',
+      );
+      await tester.enterText(fields.at(2), '55519999');
+      await tester.tap(find.text('Save'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('Member Sara Ahmed updated.'), findsOneWidget);
+      expect(find.text('55519999'), findsOneWidget);
+      expect(api.members.single.phoneNumber, '55519999');
+    },
+  );
+  testWidgets(
+    'Edit with a duplicate email shows backend error',
+    (tester) async {
+      final api = FakeMembersApiService(
+        members: [makeMember()],
+        updateMemberError:
+            'A member with email omar@example.com already exists.',
+      );
+      await tester.pumpWidget(
+        MaterialApp(home: Scaffold(body: MembersScreen(api: api))),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Edit member'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField).at(1), 'omar@example.com');
+      await tester.tap(find.text('Save'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.textContaining('already exists'), findsOneWidget);
+      expect(api.members.single.email, 'sara@example.com');
     },
   );
 }
