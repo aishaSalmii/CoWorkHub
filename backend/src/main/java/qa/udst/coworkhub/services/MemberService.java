@@ -46,6 +46,22 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
+    @Transactional
+    public Member update(Long id, Member updatedMember) {
+        Member existing = findById(id);
+
+        if (memberRepository.existsByEmailAndIdNot(updatedMember.getEmail(), id)) {
+            throw new ConflictException(
+                    "A member with email " + updatedMember.getEmail()
+                    + " already exists.");
+        }
+
+        existing.setFullName(updatedMember.getFullName());
+        existing.setEmail(updatedMember.getEmail());
+        existing.setPhoneNumber(updatedMember.getPhoneNumber());
+        return memberRepository.save(existing);
+    }
+
     public List<Booking> findBookingsOfMember(Long memberId) {
         findById(memberId);
         return bookingRepository.findByMemberId(memberId);

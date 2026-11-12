@@ -45,3 +45,43 @@ GET {{base}}/1/bookings
 
 ### 8. Bookings of unknown member -> 404
 GET {{base}}/999/bookings
+
+### 9. Update member 2 (change phone only, same email) -> 200
+PUT {{base}}/2
+Content-Type: application/json
+
+{
+  "fullName": "Omar Khalid",
+  "email": "omar.khalid@example.com",
+  "phoneNumber": "55519999"
+}
+
+### 10. Update member 2 with member 1's email -> 409
+PUT {{base}}/2
+Content-Type: application/json
+
+{
+  "fullName": "Omar Khalid",
+  "email": "sara.ahmed@example.com",
+  "phoneNumber": "55519999"
+}
+
+### 11. Update unknown member -> 404
+PUT {{base}}/999
+Content-Type: application/json
+
+{
+  "fullName": "Nobody",
+  "email": "nobody@example.com",
+  "phoneNumber": "55500000"
+}
+
+### 12. Update with invalid data -> 400
+PUT {{base}}/2
+Content-Type: application/json
+
+{
+  "fullName": "",
+  "email": "not-an-email",
+  "phoneNumber": ""
+}
