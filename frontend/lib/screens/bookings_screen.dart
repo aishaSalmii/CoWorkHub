@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+
 import '../models/booking.dart';
 import '../services/api_service.dart';
 import '../widgets/error_view.dart';
 import '../widgets/loading_view.dart';
+
 enum _Filter { current, past, all }
+
 class BookingsScreen extends StatefulWidget {
   final ApiService? api;
-  const BookingsScreen({
-    super.key,
-    this.api,
-  });
+  const BookingsScreen({super.key, this.api});
   @override
   State<BookingsScreen> createState() => _BookingsScreenState();
 }
+
 class _BookingsScreenState extends State<BookingsScreen> {
   late final ApiService _api;
   List<Booking> _bookings = [];
@@ -25,6 +26,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
     _api = widget.api ?? ApiService();
     _loadBookings();
   }
+
   Future<void> _loadBookings() async {
     setState(() {
       _loading = true;
@@ -32,9 +34,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
     });
     try {
       final bookings = await _api.getBookings();
-      bookings.sort(
-        (a, b) => b.startDateTime.compareTo(a.startDateTime),
-      );
+      bookings.sort((a, b) => b.startDateTime.compareTo(a.startDateTime));
       if (!mounted) return;
       setState(() {
         _bookings = bookings;
@@ -48,6 +48,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
       });
     }
   }
+
   List<Booking> get _visibleBookings {
     switch (_filter) {
       case _Filter.current:
@@ -58,15 +59,14 @@ class _BookingsScreenState extends State<BookingsScreen> {
         return _bookings;
     }
   }
+
   Future<void> _cancel(Booking booking) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Cancel booking?'),
-          content: const Text(
-            'Are you sure you want to cancel this booking?',
-          ),
+          content: const Text('Are you sure you want to cancel this booking?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -88,27 +88,19 @@ class _BookingsScreenState extends State<BookingsScreen> {
     try {
       await _api.cancelBooking(booking.id);
       if (!mounted) return;
-      showMessage(
-        context,
-        'Booking cancelled.',
-      );
+      showMessage(context, 'Booking cancelled.');
       await _loadBookings();
     } catch (e) {
       if (!mounted) return;
-      showMessage(
-        context,
-        e.toString(),
-        isError: true,
-      );
+      showMessage(context, e.toString(), isError: true);
     }
   }
+
   Future<void> _edit(Booking booking) async {
     final change = await showDialog<_BookingChange>(
       context: context,
       builder: (context) {
-        return _EditBookingDialog(
-          booking: booking,
-        );
+        return _EditBookingDialog(booking: booking);
       },
     );
     if (change == null) return;
@@ -124,18 +116,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
       if (!mounted) return;
       showMessage(
         context,
-        'Booking updated. New total cost: ${updated.totalCost}',
+        'Booking updated. New total cost: ${updated.totalCost.toStringAsFixed(2)} QAR',
       );
       await _loadBookings();
     } catch (e) {
       if (!mounted) return;
-      showMessage(
-        context,
-        e.toString(),
-        isError: true,
-      );
+      showMessage(context, e.toString(), isError: true);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -148,14 +137,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 value: _Filter.current,
                 label: Text('Current'),
               ),
-              ButtonSegment<_Filter>(
-                value: _Filter.past,
-                label: Text('Past'),
-              ),
-              ButtonSegment<_Filter>(
-                value: _Filter.all,
-                label: Text('All'),
-              ),
+              ButtonSegment<_Filter>(value: _Filter.past, label: Text('Past')),
+              ButtonSegment<_Filter>(value: _Filter.all, label: Text('All')),
             ],
             selected: {_filter},
             onSelectionChanged: (selection) {
@@ -165,41 +148,29 @@ class _BookingsScreenState extends State<BookingsScreen> {
             },
           ),
         ),
-        Expanded(
-          child: _buildBody(),
-        ),
+        Expanded(child: _buildBody()),
       ],
     );
   }
+
   Widget _buildBody() {
     if (_loading) {
-      return const LoadingView(
-        message: 'Loading bookings...',
-      );
+      return const LoadingView(message: 'Loading bookings...');
     }
     if (_error != null) {
-      return ErrorView(
-        message: _error!,
-        onRetry: _loadBookings,
-      );
+      return ErrorView(message: _error!, onRetry: _loadBookings);
     }
     final bookings = _visibleBookings;
     if (bookings.isEmpty) {
-      return const Center(
-        child: Text('No bookings found.'),
-      );
+      return const Center(child: Text('No bookings found.'));
     }
     return ListView.builder(
       itemCount: bookings.length,
       itemBuilder: (context, index) {
         final booking = bookings[index];
-        final canChange =
-            !booking.isCancelled && !booking.isPast;
+        final canChange = !booking.isCancelled && !booking.isPast;
         return Card(
-          margin: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 6,
-          ),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -210,24 +181,12 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Member: ${booking.member.fullName}',
-                ),
-                Text(
-                  'Resource: ${booking.resource.name}',
-                ),
-                Text(
-                  'Start: ${booking.startDateTime}',
-                ),
-                Text(
-                  'End: ${booking.endDateTime}',
-                ),
-                Text(
-                  'Attendees: ${booking.attendees}',
-                ),
-                Text(
-                  'Total cost: ${booking.totalCost}',
-                ),
+                Text('Member: ${booking.member.fullName}'),
+                Text('Resource: ${booking.resource.name}'),
+                Text('Start: ${_formatDateTime(booking.startDateTime)}'),
+                Text('End: ${_formatDateTime(booking.endDateTime)}'),
+                Text('Attendees: ${booking.attendees}'),
+                Text('Total cost: ${booking.totalCost.toStringAsFixed(2)} QAR'),
                 const SizedBox(height: 8),
                 Chip(
                   label: Text(booking.status),
@@ -261,6 +220,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
     );
   }
 }
+
 class _BookingChange {
   final DateTime start;
   final DateTime end;
@@ -271,16 +231,16 @@ class _BookingChange {
     required this.attendees,
   });
 }
+
 class _EditBookingDialog extends StatefulWidget {
   final Booking booking;
-  const _EditBookingDialog({
-    required this.booking,
-  });
+  const _EditBookingDialog({required this.booking});
   @override
   State<_EditBookingDialog> createState() {
     return _EditBookingDialogState();
   }
 }
+
 class _EditBookingDialogState extends State<_EditBookingDialog> {
   late DateTime _start;
   late DateTime _end;
@@ -295,14 +255,14 @@ class _EditBookingDialogState extends State<_EditBookingDialog> {
       text: widget.booking.attendees.toString(),
     );
   }
+
   @override
   void dispose() {
     _attendeesController.dispose();
     super.dispose();
   }
-  Future<DateTime?> _pickDateTime(
-    DateTime initial,
-  ) async {
+
+  Future<DateTime?> _pickDateTime(DateTime initial) async {
     final date = await showDatePicker(
       context: context,
       initialDate: initial,
@@ -319,18 +279,11 @@ class _EditBookingDialogState extends State<_EditBookingDialog> {
     if (time == null) {
       return null;
     }
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
-    );
+    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
   }
+
   void _save() {
-    final attendees = int.tryParse(
-      _attendeesController.text.trim(),
-    );
+    final attendees = int.tryParse(_attendeesController.text.trim());
     if (!_end.isAfter(_start)) {
       setState(() {
         _error = 'End time must be after start time.';
@@ -345,13 +298,10 @@ class _EditBookingDialogState extends State<_EditBookingDialog> {
     }
     Navigator.pop(
       context,
-      _BookingChange(
-        start: _start,
-        end: _end,
-        attendees: attendees,
-      ),
+      _BookingChange(start: _start, end: _end, attendees: attendees),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -363,16 +313,10 @@ class _EditBookingDialogState extends State<_EditBookingDialog> {
           children: [
             ListTile(
               title: const Text('Start'),
-              subtitle: Text(
-                _start.toString(),
-              ),
-              trailing: const Icon(
-                Icons.calendar_month,
-              ),
+              subtitle: Text(_formatDateTime(_start)),
+              trailing: const Icon(Icons.calendar_month),
               onTap: () async {
-                final selected = await _pickDateTime(
-                  _start,
-                );
+                final selected = await _pickDateTime(_start);
                 if (selected != null) {
                   setState(() {
                     _start = selected;
@@ -383,16 +327,10 @@ class _EditBookingDialogState extends State<_EditBookingDialog> {
             ),
             ListTile(
               title: const Text('End'),
-              subtitle: Text(
-                _end.toString(),
-              ),
-              trailing: const Icon(
-                Icons.calendar_month,
-              ),
+              subtitle: Text(_formatDateTime(_end)),
+              trailing: const Icon(Icons.calendar_month),
               onTap: () async {
-                final selected = await _pickDateTime(
-                  _end,
-                );
+                final selected = await _pickDateTime(_end);
                 if (selected != null) {
                   setState(() {
                     _end = selected;
@@ -404,17 +342,13 @@ class _EditBookingDialogState extends State<_EditBookingDialog> {
             TextField(
               controller: _attendeesController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Attendees',
-              ),
+              decoration: const InputDecoration(labelText: 'Attendees'),
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
               Text(
                 _error!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ],
           ],
@@ -427,11 +361,15 @@ class _EditBookingDialogState extends State<_EditBookingDialog> {
           },
           child: const Text('Close'),
         ),
-        FilledButton(
-          onPressed: _save,
-          child: const Text('Save'),
-        ),
+        FilledButton(onPressed: _save, child: const Text('Save')),
       ],
     );
   }
+}
+
+/// Formats a date and time as 2026-12-01 10:00
+String _formatDateTime(DateTime dateTime) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${dateTime.year}-${two(dateTime.month)}-${two(dateTime.day)} '
+      '${two(dateTime.hour)}:${two(dateTime.minute)}';
 }
