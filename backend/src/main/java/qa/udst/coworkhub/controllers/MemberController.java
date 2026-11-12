@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,10 +47,15 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    // PUT /api/members/{id}
+    @PutMapping("/{id}")
+    public Member update(@PathVariable Long id, @Valid @RequestBody Member member) {
+        return memberService.update(id, member);
+    }
+
     // GET /api/members/{id}/bookings
     @GetMapping("/{id}/bookings")
     public List<Booking> getBookings(@PathVariable Long id) {
         return memberService.findBookingsOfMember(id);
     }
 }
-

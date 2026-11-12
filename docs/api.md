@@ -20,6 +20,7 @@ All requests and responses use JSON. Dates use ISO format: `2026-12-01T10:00:00`
 | GET | `/members` | List members | 200 | — |
 | GET | `/members/{id}` | Get one member | 200 | 404 |
 | POST | `/members` | Create a member | 201 | 400 validation, 409 duplicate email |
+| PUT | `/members/{id}` | Update a member | 200 | 400 validation, 404, 409 duplicate email |
 | GET | `/members/{id}/bookings` | Bookings of one member | 200 | 404 |
 
 # Bookings
