@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../models/member.dart';
-
-
-
-
 
 class MemberFormDialog extends StatefulWidget {
   const MemberFormDialog({super.key});
   @override
   State<MemberFormDialog> createState() => _MemberFormDialogState();
 }
-
 
 class _MemberFormDialogState extends State<MemberFormDialog> {
   final _formKey = GlobalKey<FormState>();
@@ -24,6 +20,7 @@ class _MemberFormDialogState extends State<MemberFormDialog> {
     _phoneController.dispose();
     super.dispose();
   }
+
   void _save() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -37,6 +34,7 @@ class _MemberFormDialogState extends State<MemberFormDialog> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -50,9 +48,7 @@ class _MemberFormDialogState extends State<MemberFormDialog> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                ),
+                decoration: const InputDecoration(labelText: 'Name'),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Name is required.';
@@ -63,16 +59,13 @@ class _MemberFormDialogState extends State<MemberFormDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                ),
+                decoration: const InputDecoration(labelText: 'Email'),
                 validator: (value) {
                   final email = value?.trim() ?? '';
                   if (email.isEmpty) {
                     return 'Email is required.';
                   }
-                  final emailPattern =
-                      RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                  final emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                   if (!emailPattern.hasMatch(email)) {
                     return 'Enter a valid email.';
                   }
@@ -82,9 +75,7 @@ class _MemberFormDialogState extends State<MemberFormDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone',
-                ),
+                decoration: const InputDecoration(labelText: 'Phone'),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Phone is required.';
@@ -101,10 +92,7 @@ class _MemberFormDialogState extends State<MemberFormDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        ElevatedButton(
-          onPressed: _save,
-          child: const Text('Save'),
-        ),
+        ElevatedButton(onPressed: _save, child: const Text('Save')),
       ],
     );
   }
