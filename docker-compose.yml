@@ -21,5 +21,24 @@ services:
       timeout: 5s
       retries: 10
 
+  backend:
+    build: ./backend
+    container_name: coworkhub-backend
+    restart: unless-stopped
+
+    # Start the backend only after the database is healthy
+    depends_on:
+      db:
+        condition: service_healthy
+
+    # Inside Docker the database host is the service name "db", not localhost
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/coworkhub
+      DB_USER: coworkhub_user
+      DB_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "8080:8080"
+
 volumes:
   coworkhub_data:
