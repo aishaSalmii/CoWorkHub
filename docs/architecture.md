@@ -55,11 +55,28 @@ Responses return through the same layers to the Flutter desktop client.
 
 All team members are responsible for understanding the complete application.
 
-## 6. Development Status
+## 6. Deployment Architecture (Docker)
 
-The initial Spring Boot project has been generated, compiled, and started successfully. The PostgreSQL development environment and Docker configuration have been prepared.
+The server side runs in Docker Compose. The Flutter desktop client runs natively on the host machine.
 
-JPA domain models, REST API functionality, Flutter integration, and final Docker deployment remain to be completed and tested.
+```text
+Host machine                         Docker Compose
+┌──────────────────┐   HTTP/JSON    ┌───────────────────────────┐      JDBC       ┌──────────────────────┐
+│ Flutter Desktop  │ ─────────────► │ backend  (Spring Boot)    │ ──────────────► │ db  (PostgreSQL 17)  │
+│ localhost:8080   │                │ container port 8080       │  db:5432        │ volume coworkhub_data│
+└──────────────────┘                └───────────────────────────┘                 └──────────────────────┘
+```
+
+| Item | Details |
+|---|---|
+| Start command | `docker compose up --build` (from the project root) |
+| `db` service | `postgres:17`, healthcheck with `pg_isready`, data stored in the named volume `coworkhub_data` |
+| `backend` service | Built from `backend/Dockerfile`; starts only after `db` is healthy (`depends_on: condition: service_healthy`) |
+| Multi-stage Dockerfile | Stage 1 (`maven:3.9-eclipse-temurin-21`) builds the JAR from `pom.xml` and `src/`; stage 2 (`eclipse-temurin:21-jre`) runs only the JAR. The build does not depend on `backend/target/` |
+| Configuration | Environment variables: `DB_URL` (inside Docker the host is the service name `db`), `DB_USER`, `DB_PASSWORD`. `application.properties` uses defaults for local development, e.g. `${DB_URL:jdbc:postgresql://localhost:5432/coworkhub}` |
+| Secrets | `DB_PASSWORD` comes from a local `.env` file, which is ignored by Git; `.env.example` contains only a placeholder |
+| Schema strategy | `spring.jpa.hibernate.ddl-auto=update`: non-destructive, so data is kept across restarts (`create`/`create-drop` are not used) |
+| Sample data | `DataSeeder` inserts sample resources and members only when the tables are empty |
 
 ## 7. Domain Model — Resource Inheritance
 
@@ -80,3 +97,45 @@ JPA domain models, REST API functionality, Flutter integration, and final Docker
 - Enums are stored with `@Enumerated(EnumType.STRING)` so the database contains readable values and reordering the enum cannot corrupt data.
 - A `Desk` always starts with capacity 1, because a desk accommodates one person.
 - Repositories: `BookableResourceRepository` (all resources, with the derived query `findByStatus` used by the availability search), `MeetingRoomRepository` and `DeskRepository` (used to create and update each resource type). Filtering by capacity, location and price is done in `ResourceService`.
+
+## 8. Entity Relationships
+
+| Relationship | Mapping |
+|---|---|
+| A `Booking` belongs to one `Member` | `@ManyToOne` + `@JoinColumn(name = "member_id", nullable = false)` |
+| A `Booking` is for one `BookableResource` | `@ManyToOne` + `@JoinColumn(name = "resource_id", nullable = false)` |
+| A `Member` has many bookings | `@OneToMany(mappedBy = "member")` |
+| A `BookableResource` has many bookings | `@OneToMany(mappedBy = "resource")` |
+
+`Booking` is the owning side (it holds the foreign keys). The `@OneToMany` lists are marked `@JsonIgnore` so that JSON responses do not loop (booking → member → bookings → …). A member's bookings are returned by the endpoint `GET /api/members/{id}/bookings`.
+
+## 9. Business Rules and Error Handling
+
+Business rules are checked in the service layer (`BookingService`, `ResourceService`, `MemberService`), never in the controllers or the Flutter client alone.
+
+- A booking's start must be before its end; attendees must fit the resource (a desk takes exactly 1 person).
+- Only `ACTIVE` resources can be booked.
+- Two `CONFIRMED` bookings on the same resource may not overlap: `existingStart < newEnd AND existingEnd > newStart`. Adjacent bookings are allowed, and `CANCELLED` bookings do not block a time slot.
+- `totalCost = hourlyRate × duration in hours`, rounded to 2 decimals.
+
+Errors are thrown as custom exceptions and converted to JSON by `GlobalExceptionHandler` (`@RestControllerAdvice`):
+
+| Exception | HTTP status |
+|---|---|
+| `ResourceNotFoundException` | 404 Not Found |
+| `BusinessRuleException` | 400 Bad Request |
+| `ConflictException` (overlap, duplicate email, resource with bookings) | 409 Conflict |
+| Bean Validation errors, unreadable JSON, wrong parameter types | 400 Bad Request |
+
+Every error uses the same body: `{"status", "error", "message", "timestamp"}`. The Flutter client shows the `message` to the user.
+
+## 10. Flutter Client Structure
+
+| Folder | Contents |
+|---|---|
+| `lib/models/` | `Resource`, `Member`, `Booking` with `fromJson` / `toJson` |
+| `lib/services/` | `ApiService`, the only class that sends HTTP requests; errors become an `ApiException` with the backend message |
+| `lib/screens/` | Dashboard, Resources, New Booking, Bookings, Members |
+| `lib/widgets/` | Reusable widgets: `LoadingView`, `ErrorView`, member and resource form dialogs |
+
+Screens call `ApiService` with `async`/`await`, show loading and error states (with Retry), validate forms before sending, and reload their data after a successful create, update or cancel. Navigation uses a `NavigationRail`. Each screen accepts an optional `ApiService`, so widget tests can replace the backend with a fake (`MockClient`).
