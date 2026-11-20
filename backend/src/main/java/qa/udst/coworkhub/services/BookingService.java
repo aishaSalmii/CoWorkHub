@@ -3,6 +3,7 @@ package qa.udst.coworkhub.services;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -151,6 +152,11 @@ public class BookingService {
         // Rule 2: the start must be before the end
         if (!request.getStartDateTime().isBefore(request.getEndDateTime())) {
             throw new BusinessRuleException("The start time must be before the end time.");
+        }
+
+        // Rule 2b: a booking cannot start in the past
+        if (request.getStartDateTime().isBefore(LocalDateTime.now())) {
+            throw new BusinessRuleException("A booking cannot start in the past.");
         }
 
         // Rule 3: an OUT_OF_SERVICE resource cannot be booked
