@@ -151,7 +151,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _date,
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      firstDate: DateUtils.dateOnly(DateTime.now()), // no past dates
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null) setState(() => _date = picked);

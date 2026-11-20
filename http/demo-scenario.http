@@ -26,7 +26,7 @@ Content-Type: application/json
     }
 
 ### 3. available meeting rooms ->200
-GET {{base}}/resources/available?start=2026-12-01T10:00:00&end=2026-12-01T12:00:00&type=MEETING_ROOM
+GET {{base}}/resources/available?start=2027-12-01T10:00:00&end=2027-12-01T12:00:00&type=MEETING_ROOM
 
 ### 4. book demo room ->201
 # @name booking
@@ -36,8 +36,8 @@ Content-Type: application/json
 {
     "memberId":{{member.response.body.$.id}},
     "resourceId":{{room.response.body.$.id}},
-    "startDateTime":"2026-12-01T10:00:00",
-    "endDateTime":"2026-12-01T12:00:00",
+    "startDateTime":"2027-12-01T10:00:00",
+    "endDateTime":"2027-12-01T12:00:00",
     "attendees":4
 }
 
@@ -48,8 +48,8 @@ Content-Type: application/json
 {
      "memberId":{{member.response.body.$.id}},
     "resourceId":{{room.response.body.$.id}},
-    "startDateTime":"2026-12-01T11:00:00",
-    "endDateTime":"2026-12-01T13:00:00",
+    "startDateTime":"2027-12-01T11:00:00",
+    "endDateTime":"2027-12-01T13:00:00",
     "attendees":2
 }
 
@@ -60,13 +60,13 @@ Content-Type: application/json
 {
      "memberId":{{member.response.body.$.id}},
     "resourceId":{{room.response.body.$.id}},
-    "startDateTime":"2026-12-01T12:00:00",
-    "endDateTime":"2026-12-01T13:00:00",
+    "startDateTime":"2027-12-01T12:00:00",
+    "endDateTime":"2027-12-01T13:00:00",
     "attendees":2
 }
 
 ### 7. available rooms again ->200
-GET {{base}}/resources/available?start=2026-12-01T10:00:00&end=2026-12-01T12:00:00&type=MEETING_ROOM
+GET {{base}}/resources/available?start=2027-12-01T10:00:00&end=2027-12-01T12:00:00&type=MEETING_ROOM
 
 ### 8. too many attendees ->400
 POST {{base}}/bookings
@@ -75,8 +75,8 @@ Content-Type: application/json
 {
      "memberId":{{member.response.body.$.id}},
     "resourceId":{{room.response.body.$.id}},
-    "startDateTime":"2026-12-01T14:00:00",
-    "endDateTime":"2026-12-01T15:00:00",
+    "startDateTime":"2027-12-01T14:00:00",
+    "endDateTime":"2027-12-01T15:00:00",
     "attendees":8
 }
 
@@ -90,7 +90,7 @@ DELETE {{base}}/resources/{{room.response.body.$.id}}
 PUT {{base}}/bookings/{{booking.response.body.$.id}}/cancel
 
 ### 12. available rooms after cancellation ->200
-GET {{base}}/resources/available?start=2026-12-01T10:00:00&end=2026-12-01T12:00:00&type=MEETING_ROOM
+GET {{base}}/resources/available?start=2027-12-01T10:00:00&end=2027-12-01T12:00:00&type=MEETING_ROOM
 
 ### 13. book same slot again ->201
 POST {{base}}/bookings
@@ -99,8 +99,8 @@ Content-Type: application/json
 {
      "memberId":{{member.response.body.$.id}},
     "resourceId":{{room.response.body.$.id}},
-    "startDateTime":"2026-12-01T11:00:00",
-    "endDateTime":"2026-12-01T12:00:00",
+    "startDateTime":"2027-12-01T11:00:00",
+    "endDateTime":"2027-12-01T12:00:00",
     "attendees":3
 }
 
@@ -126,8 +126,8 @@ Content-Type: application/json
 {
       "memberId":{{member.response.body.$.id}},
     "resourceId":{{room.response.body.$.id}},
-    "startDateTime":"2026-12-01T10:00:00",
-    "endDateTime":"2026-12-01T11:00:00",
+    "startDateTime":"2027-12-01T10:00:00",
+    "endDateTime":"2027-12-01T11:00:00",
     "attendees":2
 }
 

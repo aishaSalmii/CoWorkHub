@@ -13,49 +13,49 @@ GET {{base}}/members
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 1, "resourceId": 1, "startDateTime": "2026-11-20T09:00:00", "endDateTime": "2026-11-20T11:00:00", "attendees": 4 }
+{ "memberId": 1, "resourceId": 1, "startDateTime": "2027-11-20T09:00:00", "endDateTime": "2027-11-20T11:00:00", "attendees": 4 }
 
 ### 4. OVERLAP: Boardroom 10:00-12:00 -> 409 (the demo case!)
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 2, "resourceId": 1, "startDateTime": "2026-11-20T10:00:00", "endDateTime": "2026-11-20T12:00:00", "attendees": 2 }
+{ "memberId": 2, "resourceId": 1, "startDateTime": "2027-11-20T10:00:00", "endDateTime": "2027-11-20T12:00:00", "attendees": 2 }
 
 ### 5. ADJACENT: Boardroom 11:00-12:00 -> 201 (allowed)
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 2, "resourceId": 1, "startDateTime": "2026-11-20T11:00:00", "endDateTime": "2026-11-20T12:00:00", "attendees": 2 }
+{ "memberId": 2, "resourceId": 1, "startDateTime": "2027-11-20T11:00:00", "endDateTime": "2027-11-20T12:00:00", "attendees": 2 }
 
 ### 6. Start after end -> 400
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 1, "resourceId": 2, "startDateTime": "2026-11-20T15:00:00", "endDateTime": "2026-11-20T14:00:00", "attendees": 2 }
+{ "memberId": 1, "resourceId": 2, "startDateTime": "2027-11-20T15:00:00", "endDateTime": "2027-11-20T14:00:00", "attendees": 2 }
 
 ### 7. Desk with 2 attendees -> 400
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 1, "resourceId": 3, "startDateTime": "2026-11-20T09:00:00", "endDateTime": "2026-11-20T10:00:00", "attendees": 2 }
+{ "memberId": 1, "resourceId": 3, "startDateTime": "2027-11-20T09:00:00", "endDateTime": "2027-11-20T10:00:00", "attendees": 2 }
 
 ### 8. Focus Room (capacity 4) with 6 attendees -> 400
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 1, "resourceId": 2, "startDateTime": "2026-11-20T09:00:00", "endDateTime": "2026-11-20T10:00:00", "attendees": 6 }
+{ "memberId": 1, "resourceId": 2, "startDateTime": "2027-11-20T09:00:00", "endDateTime": "2027-11-20T10:00:00", "attendees": 6 }
 
 ### 9. Desk for 1.5 hours at 12.50/h -> 201, totalCost 18.75
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 1, "resourceId": 4, "startDateTime": "2026-11-20T09:00:00", "endDateTime": "2026-11-20T10:30:00", "attendees": 1 }
+{ "memberId": 1, "resourceId": 4, "startDateTime": "2027-11-20T09:00:00", "endDateTime": "2027-11-20T10:30:00", "attendees": 1 }
 
 ### 10. Unknown member -> 404
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 999, "resourceId": 1, "startDateTime": "2026-11-21T09:00:00", "endDateTime": "2026-11-21T10:00:00", "attendees": 1 }
+{ "memberId": 999, "resourceId": 1, "startDateTime": "2027-11-21T09:00:00", "endDateTime": "2027-11-21T10:00:00", "attendees": 1 }
 
 ### 11. Missing fields -> 400
 POST {{base}}/bookings
@@ -67,13 +67,13 @@ Content-Type: application/json
 PUT {{base}}/bookings/1
 Content-Type: application/json
 
-{ "memberId": 1, "resourceId": 1, "startDateTime": "2026-11-20T09:30:00", "endDateTime": "2026-11-20T11:00:00", "attendees": 4 }
+{ "memberId": 1, "resourceId": 1, "startDateTime": "2027-11-20T09:30:00", "endDateTime": "2027-11-20T11:00:00", "attendees": 4 }
 
 ### 13. Update booking 1 to 10:00-11:30 (overlaps booking 2) -> 409
 PUT {{base}}/bookings/1
 Content-Type: application/json
 
-{ "memberId": 1, "resourceId": 1, "startDateTime": "2026-11-20T10:00:00", "endDateTime": "2026-11-20T11:30:00", "attendees": 4 }
+{ "memberId": 1, "resourceId": 1, "startDateTime": "2027-11-20T10:00:00", "endDateTime": "2027-11-20T11:30:00", "attendees": 4 }
 
 ### 14. Cancel booking 2 (11:00-12:00) -> 200, status CANCELLED
 PUT {{base}}/bookings/2/cancel
@@ -82,13 +82,13 @@ PUT {{base}}/bookings/2/cancel
 POST {{base}}/bookings
 Content-Type: application/json
 
-{ "memberId": 2, "resourceId": 1, "startDateTime": "2026-11-20T11:00:00", "endDateTime": "2026-11-20T12:00:00", "attendees": 3 }
+{ "memberId": 2, "resourceId": 1, "startDateTime": "2027-11-20T11:00:00", "endDateTime": "2027-11-20T12:00:00", "attendees": 3 }
 
 ### 16. Update the cancelled booking -> 400
 PUT {{base}}/bookings/2
 Content-Type: application/json
 
-{ "memberId": 2, "resourceId": 1, "startDateTime": "2026-11-20T13:00:00", "endDateTime": "2026-11-20T14:00:00", "attendees": 2 }
+{ "memberId": 2, "resourceId": 1, "startDateTime": "2027-11-20T13:00:00", "endDateTime": "2027-11-20T14:00:00", "attendees": 2 }
 
 ### 17. Cancel it again -> 400
 PUT {{base}}/bookings/2/cancel
@@ -98,3 +98,9 @@ GET {{base}}/bookings
 
 ### 19. Unknown booking -> 404
 GET {{base}}/bookings/999
+
+### 20. Booking in the past -> 400 ("A booking cannot start in the past.")
+POST {{base}}/bookings
+Content-Type: application/json
+
+{ "memberId": 1, "resourceId": 1, "startDateTime": "2025-01-10T09:00:00", "endDateTime": "2025-01-10T10:00:00", "attendees": 2 }
